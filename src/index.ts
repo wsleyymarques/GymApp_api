@@ -1,4 +1,4 @@
-import express, { Request, Response, NextFunction } from 'express';
+import express from 'express';
 import { AppDataSource } from './data-source';
 import index from "./routes";
 import errorMiddleware from "./middlewares";
