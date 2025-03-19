@@ -10,25 +10,44 @@ export class WorkoutExerciseController {
 
     async create(req: Request, res: Response): Promise<Response> {
         try {
-            const { workoutId, exerciceId, sets, reps } = req.body;
+            const { workoutId, exercises } = req.body;
 
             const workout = await this.workoutExerciseRepo.getWorkoutById(workoutId);
-            const exercice = await this.workoutExerciseRepo.getExerciceById(exerciceId);
-
-            if (!workout || !exercice) {
-                return res.status(404).json({ message: "Treino ou exercício não encontrado" });
+            if (!workout) {
+                return res.status(404).json({ message: "Treino não encontrado" });
             }
 
-            const workoutExercise = await this.workoutExerciseRepo.create({
-                workout: workout,
-                exercice: exercice,
-                sets,
-                reps
-            });
+            const formattedExercices = [];
 
-            return res.status(201).json(workoutExercise);
+            for (const exercise of exercises) {
+                const { exerciceId, sets, reps } = exercise;
+
+                const exercice = await this.workoutExerciseRepo.getExerciceById(exerciceId);
+                if (!exercice) {
+                    return res.status(404).json({ message: `Exercício com ID ${exerciceId} não encontrado` });
+                }
+
+                await this.workoutExerciseRepo.create({
+                    workout: workout,
+                    exercice: exercice,
+                    sets,
+                    reps
+                });
+
+                formattedExercices.push({
+                    id: exercice.id,
+                    name: exercice.name,
+                    sets,
+                    reps
+                });
+            }
+
+            return res.status(201).json({
+                workoutId: workout.id,
+                exercices: formattedExercices
+            });
         } catch (error) {
-            return res.status(500).json({ message: "Erro ao criar associação de treino e exercício", error });
+            return res.status(500).json({ message: "Erro ao criar associações de treino e exercício", error });
         }
     }
 

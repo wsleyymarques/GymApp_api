@@ -1,4 +1,3 @@
-// src/repositories/workout_exercise.repository.ts
 import { Repository } from "typeorm";
 import { WorkoutExercise } from "../entities/WorkoutExercise";
 import { AppDataSource } from "../data-source";
